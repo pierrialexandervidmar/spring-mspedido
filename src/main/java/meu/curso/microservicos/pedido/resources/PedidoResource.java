@@ -2,6 +2,8 @@ package meu.curso.microservicos.pedido.resources;
 
 import meu.curso.microservicos.pedido.entities.Pedido;
 import meu.curso.microservicos.pedido.services.PedidoService;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,15 +15,23 @@ import java.util.List;
 @RequestMapping("/pedidos")
 public class PedidoResource {
 
+    private final RabbitTemplate rabbitTemplate;
     private final PedidoService pedidoService;
 
-    public PedidoResource(PedidoService pedidoService) {
+    @Value("${broker.queue.processamento.name}")
+    private String routingKey;
+
+    public PedidoResource(RabbitTemplate rabbitTemplate, PedidoService pedidoService) {
+        this.rabbitTemplate = rabbitTemplate;
         this.pedidoService = pedidoService;
     }
 
     @PostMapping
     public String criarPedido(@RequestMapping Pedido pedido) {
-        pedidoService.salvarPedido(pedido);
+        Pedido pedidoSalvo = pedidoService.salvarPedido(pedido);
+
+        rabbitTemplate.convertAndSend("", routingKey, pedidoSalvo.getDescricao());
+
         return "Pedido salvo e enviado para processamento: " + pedido.getDescricao();
     }
 
