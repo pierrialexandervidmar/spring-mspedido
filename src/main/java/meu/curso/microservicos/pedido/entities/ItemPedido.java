@@ -13,7 +13,7 @@ public class ItemPedido {
 
     private String nome;
 
-    private int quantidade;
+    private Integer quantidade;
 
     @ManyToOne
     @JoinColumn(name = "pedido_id")
@@ -35,11 +35,11 @@ public class ItemPedido {
         this.nome = nome;
     }
 
-    public int getQuantidade() {
+    public Integer getQuantidade() {
         return quantidade;
     }
 
-    public void setQuantidade(int quantidade) {
+    public void setQuantidade(Integer quantidade) {
         this.quantidade = quantidade;
     }
 

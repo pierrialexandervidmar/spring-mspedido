@@ -1,6 +1,8 @@
 package meu.curso.microservicos.pedido.resources;
 
+import meu.curso.microservicos.pedido.dto.PedidoDto;
 import meu.curso.microservicos.pedido.entities.Pedido;
+import meu.curso.microservicos.pedido.mapper.PedidoMapper;
 import meu.curso.microservicos.pedido.services.PedidoService;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,9 +29,11 @@ public class PedidoResource {
     public String criarPedido(@RequestBody Pedido pedido) {
         Pedido pedidoSalvo = pedidoService.salvarPedido(pedido);
 
-        rabbitTemplate.convertAndSend("", routingKey, pedidoSalvo.getDescricao());
+        PedidoDto pedidoDto = PedidoMapper.toDTO(pedidoSalvo);
 
-        return "Pedido salvo e enviado para processamento: " + pedido.getDescricao();
+        rabbitTemplate.convertAndSend("", routingKey, pedidoDto);
+
+        return "Pedido salvo e enviado para processamento: " + pedidoSalvo.getDescricao();
     }
 
     @GetMapping
