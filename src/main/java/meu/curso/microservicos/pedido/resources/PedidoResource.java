@@ -4,10 +4,7 @@ import meu.curso.microservicos.pedido.entities.Pedido;
 import meu.curso.microservicos.pedido.services.PedidoService;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -27,7 +24,7 @@ public class PedidoResource {
     }
 
     @PostMapping
-    public String criarPedido(@RequestMapping Pedido pedido) {
+    public String criarPedido(@RequestBody Pedido pedido) {
         Pedido pedidoSalvo = pedidoService.salvarPedido(pedido);
 
         rabbitTemplate.convertAndSend("", routingKey, pedidoSalvo.getDescricao());
